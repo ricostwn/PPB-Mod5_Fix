@@ -1,5 +1,5 @@
 // src/main.jsx
-import { StrictMode, useState } from 'react'
+import { StrictMode, useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import SplashScreen from './pages/SplashScreen';
 import HomePage from './pages/HomePage';
@@ -31,6 +31,13 @@ function AppRoot() {
     setMode('list');
     setSelectedRecipeId(null);
     setEditingRecipeId(null);
+    // update URL for top-level pages
+    try {
+      const path = page === 'home' ? '/' : `/${page}`;
+      window.history.pushState({ page }, '', path);
+    } catch (err) {
+      // ignore
+    }
   };
 
   const handleCreateRecipe = () => {
@@ -41,6 +48,12 @@ function AppRoot() {
     setSelectedRecipeId(recipeId);
     setSelectedCategory(category || currentPage);
     setMode('detail');
+    try {
+      const path = `/recipe/${recipeId}`;
+      window.history.pushState({ mode: 'detail', recipeId }, '', path);
+    } catch (err) {
+      // ignore
+    }
   };
 
   const handleEditRecipe = (recipeId) => {
@@ -54,7 +67,58 @@ function AppRoot() {
     setMode('list');
     setSelectedRecipeId(null);
     setEditingRecipeId(null);
+    try {
+      window.history.pushState({ page: currentPage || 'home' }, '', '/');
+    } catch (err) {}
   };
+
+  // Handle deep links and back/forward
+  useEffect(() => {
+    const parseLocation = () => {
+      const pathname = window.location.pathname || '/';
+      // If path is /recipe/:id -> open detail
+      const match = pathname.match(/^\/recipe\/(.+)/);
+      if (match) {
+        const id = match[1];
+        setSelectedRecipeId(id);
+        // try to infer category from path or keep current
+        setMode('detail');
+        return;
+      }
+
+      // Map other top-level paths
+      if (pathname === '/profile') {
+        setCurrentPage('profile');
+        setMode('list');
+        return;
+      }
+
+      if (pathname === '/makanan') {
+        setCurrentPage('makanan');
+        setMode('list');
+        return;
+      }
+
+      if (pathname === '/minuman') {
+        setCurrentPage('minuman');
+        setMode('list');
+        return;
+      }
+
+      // default to home
+      setCurrentPage('home');
+      setMode('list');
+    };
+
+    parseLocation();
+
+    const onPop = () => {
+      parseLocation();
+    };
+
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const handleCreateSuccess = (newRecipe) => {
     alert('Resep berhasil dibuat!');

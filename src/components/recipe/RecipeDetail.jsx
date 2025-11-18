@@ -5,7 +5,7 @@ import { useReviews, useCreateReview } from '../../hooks/useReviews';
 import { useIsFavorited } from '../../hooks/useFavorites';
 import { getUserIdentifier } from '../../hooks/useFavorites';
 import { formatDate, getDifficultyColor, getStarRating } from '../../utils/helpers';
-import { ArrowLeft, Heart, Clock, Users, ChefHat, Star, Send, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Heart, Clock, Users, ChefHat, Star, Send, Edit, Trash2, Share2 } from 'lucide-react';
 import recipeService from '../../services/recipeService';
 import ConfirmModal from '../modals/ConfirmModal';
 import FavoriteButton from '../common/FavoriteButton';
@@ -190,6 +190,25 @@ export default function RecipeDetail({ recipeId, onBack, onEdit, category = 'mak
               </button>
             </div>
           )}
+          {/* Share button (always visible) */}
+          <div className="flex items-center gap-2 ml-3">
+            <button
+              onClick={async () => {
+                try {
+                  const origin = window.location.origin;
+                  const link = `${origin}/recipe/${recipeId}`;
+                  await navigator.clipboard.writeText(link);
+                  alert('Tautan resep disalin ke clipboard');
+                } catch (err) {
+                  alert('Gagal menyalin tautan: ' + (err.message || err));
+                }
+              }}
+              className="flex items-center gap-2 px-3 py-2 bg-white/80 text-slate-700 rounded-lg hover:bg-white transition-colors border border-white/40"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden md:inline">Bagikan</span>
+            </button>
+          </div>
         </div>
       </div>
 
