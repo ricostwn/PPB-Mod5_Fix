@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import userService from '../services/userService';
 import uploadService from '../services/uploadService';
+import LazyImage from '../components/common/LazyImage';
 import { useFavorites, useToggleFavorite } from '../hooks/useFavorites';
 
 export default function ProfilePage({ onRecipeClick }) {
@@ -88,7 +89,7 @@ export default function ProfilePage({ onRecipeClick }) {
             <div className="relative">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                 {profile.avatar ? (
-                  <img src={profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                  <LazyImage src={profile.avatar} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-gray-400">No Avatar</div>
                 )}
@@ -189,7 +190,7 @@ export default function ProfilePage({ onRecipeClick }) {
                         className="cursor-pointer"
                       >
                         <div className="h-40 w-full overflow-hidden">
-                          <img src={recipe.image_url} alt={recipe.name} className="w-full h-full object-cover" />
+                          <LazyImage src={recipe.image_url} alt={recipe.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="p-4">
                           <div className="text-xs font-semibold text-blue-700 bg-blue-100/90 px-2 py-1 rounded-full inline-block mb-2">{recipe.category}</div>
