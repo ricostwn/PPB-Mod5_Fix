@@ -1,13 +1,15 @@
 // src/components/common/FavoriteButton.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Heart } from 'lucide-react';
+import { useIsFavorited } from '../../hooks/useFavorites';
 
 /**
  * FavoriteButton Component
- * Toggles favorite status with localStorage support
+ * Uses server-backed favorites via `useIsFavorited` hook so state
+ * remains consistent with the Profile favorites section.
  */
 export default function FavoriteButton({ recipeId, onToggle, showCount = false, initialCount = 0, size = 'md' }) {
-  const [isFavorited, setIsFavorited] = useState(false);
+  const { isFavorited, loading, toggleFavorite } = useIsFavorited(recipeId);
   const [favoriteCount, setFavoriteCount] = useState(initialCount);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -24,41 +26,20 @@ export default function FavoriteButton({ recipeId, onToggle, showCount = false, 
     lg: 'w-6 h-6'
   };
 
-  // Check if recipe is favorited on mount
-  useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    setIsFavorited(favorites.includes(recipeId));
-  }, [recipeId]);
-
   const handleToggle = async (e) => {
-    e.stopPropagation(); // Prevent card click
-    
+    e.stopPropagation();
+    if (loading) return;
+
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 300);
 
-    // Toggle in localStorage
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const index = favorites.indexOf(recipeId);
-    
-    let newFavoritedState;
-    if (index > -1) {
-      // Remove from favorites
-      favorites.splice(index, 1);
-      newFavoritedState = false;
-      setFavoriteCount(prev => Math.max(0, prev - 1));
-    } else {
-      // Add to favorites
-      favorites.push(recipeId);
-      newFavoritedState = true;
-      setFavoriteCount(prev => prev + 1);
-    }
-    
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-    setIsFavorited(newFavoritedState);
+    const result = await toggleFavorite();
 
-    // Call parent callback if provided
-    if (onToggle) {
-      onToggle(recipeId, newFavoritedState);
+    // Optimistically update count if toggle succeeded
+    if (result) {
+      const newState = !isFavorited;
+      setFavoriteCount(prev => newState ? prev + 1 : Math.max(0, prev - 1));
+      if (onToggle) onToggle(recipeId, newState);
     }
   };
 
