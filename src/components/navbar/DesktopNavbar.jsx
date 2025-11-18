@@ -1,7 +1,8 @@
 // src/components/DesktopNavbar.jsx
+import { Plus } from 'lucide-react';
 import logoUrl from '../../assets/LOGORN.png';
 
-export default function DesktopNavbar({ currentPage, onNavigate }) {
+export default function DesktopNavbar({ currentPage, onNavigate, onCreateRecipe }) {
   const navItems = [
     { id: 'home', label: 'Beranda' },
     { id: 'makanan', label: 'Makanan' },
@@ -51,6 +52,15 @@ export default function DesktopNavbar({ currentPage, onNavigate }) {
                 {item.label}
               </button>
             ))}
+            
+            {/* Buat Resep Button */}
+            <button
+              onClick={onCreateRecipe}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Buat Resep</span>
+            </button>
           </div>
          
         </div>
